@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,23 +27,34 @@ public class MemberService {
         return new MemberResponse(member);
     }
 
-    public List<MemberResponse> findAll(){
-        return em
-                .createQuery("select m from Member m", Member.class)
+    public List<MemberResponse> findByName(String name) {
+        return em.createQuery("select m from Member m " +
+                        "join fetch m.memberHobbies h " +
+                        " join fetch h.hobby " +
+                        "where m.name like :name", Member.class)
+                .setParameter("name", "%" + name + "%")
                 .getResultList()
                 .stream()
                 .map(MemberResponse::new)
                 .toList();
+
+
+    }
+
+    public List<MemberResponse> findAll() {
+        return em.createQuery("select m from Member as m "
+                                + " join fetch m.memberHobbies as mh join fetch mh.hobby",
+                        Member.class)
+                .getResultList()
+                .stream()
+                .map(MemberResponse::new)
+                .collect(Collectors.toList());
     }
 
     public void insert(MemberRequest request){
         em.persist(request.toEntity());
     }
 
-    public MemberResponse update(Long id, MemberRequest request){
-        Member member = em.find(Member.class, id);
-        member.setAge(request.age());
-        member.setName(request.name());
-        return MemberResponse.from(member);
-    }
+
+
 }

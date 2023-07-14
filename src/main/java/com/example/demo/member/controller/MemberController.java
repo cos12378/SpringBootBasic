@@ -1,5 +1,6 @@
 package com.example.demo.member.controller;
 
+import com.example.demo.member.domain.entity.Member;
 import com.example.demo.member.domain.request.MemberRequest;
 import com.example.demo.member.domain.response.MemberResponse;
 import com.example.demo.member.service.MemberService;
@@ -12,7 +13,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
 public class MemberController {
+
     private final MemberService service;
+
     @GetMapping
     public List<MemberResponse> getAll(){
         return service.findAll();
@@ -21,12 +24,6 @@ public class MemberController {
     public MemberResponse getById(@PathVariable("id") Long id){
         return service.findById(id);
     }
-    @PutMapping("{id}")
-    public MemberResponse updateById(
-            @PathVariable("id") Long id
-            , @RequestBody MemberRequest request){
-        return service.update(id, request);
-    }
     @DeleteMapping("{id}")
     public void deleteById(@PathVariable("id") Long id){
         service.delete(id);
@@ -34,5 +31,10 @@ public class MemberController {
     @PostMapping
     public void insert(@RequestBody MemberRequest request){
         service.insert(request);
+    }
+
+    @GetMapping("/search/{name}")
+    public List<MemberResponse> findByName(@PathVariable("name") String name){
+        return service.findByName(name);
     }
 }
